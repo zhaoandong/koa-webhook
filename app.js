@@ -1,42 +1,31 @@
-const Koa = require('koa');
-const app = new Koa();
-const router = require('koa-router')();
-const views = require('koa-views');
-const co = require('co');
-const convert = require('koa-convert');
-const json = require('koa-json');
-const onerror = require('koa-onerror');
-const bodyparser = require('koa-bodyparser')();
-const logger = require('koa-logger');
-
-const index = require('./routes/index');
-const users = require('./routes/users');
-
-// middlewares
-app.use(convert(bodyparser));
-app.use(convert(json()));
-app.use(convert(logger()));
-app.use(convert(require('koa-static')(__dirname + '/public')));
-
-// app.use(views(__dirname + '/views', {
-//   extension: 'jade'
-// }));
-
-app.use(views(__dirname + '/views-ejs', {
-  extension: 'ejs'
-}));
-
-
-router.use('/', index.routes(), index.allowedMethods());
-router.use('/users', users.routes(), users.allowedMethods());
-
-app.use(router.routes(), router.allowedMethods());
-// response
-
-app.on('error', function(err, ctx){
-  console.log(err)
-  log.error('server error', err, ctx);
-});
-
-
-module.exports = app;
+var http = require('http')
+var createHandler = require('github-webhook-handler')
+var handler = createHandler({ path: '/', secret: 'myHashSecret' }) 
+// 上面的 secret 保持和 GitHub 后台设置的一致
+ 
+function run_cmd(cmd, args, callback) {
+  var spawn = require('child_process').spawn;
+  var child = spawn(cmd, args);
+  var resp = "";
+ 
+  child.stdout.on('data', function(buffer) { resp += buffer.toString(); });
+  child.stdout.on('end', function() { callback (resp) });
+}
+ 
+http.createServer(function (req, res) {
+  handler(req, res, function (err) {
+    res.statusCode = 404
+    res.end('no such location')
+  })
+}).listen(3001)
+ 
+handler.on('error', function (err) {
+  console.error('Error:', err.message)
+})
+ 
+handler.on('push', function (event) {
+  console.log('Received a push event for %s to %s',
+    event.payload.repository.name,
+    event.payload.ref);
+  run_cmd('sh', ['./deploy-dev.sh'], function(text){ console.log(text) });
+})
