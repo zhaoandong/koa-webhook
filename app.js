@@ -18,22 +18,14 @@ app.use(convert(json()));
 app.use(convert(logger()));
 app.use(convert(require('koa-static')(__dirname + '/public')));
 
-app.use(views(__dirname + '/views', {
-  extension: 'jade'
-}));
-
-// app.use(views(__dirname + '/views-ejs', {
-//   extension: 'ejs'
+// app.use(views(__dirname + '/views', {
+//   extension: 'jade'
 // }));
 
+app.use(views(__dirname + '/views-ejs', {
+  extension: 'ejs'
+}));
 
-// logger
-app.use(async (ctx, next) => {
-  const start = new Date();
-  await next();
-  const ms = new Date() - start;
-  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
-});
 
 router.use('/', index.routes(), index.allowedMethods());
 router.use('/users', users.routes(), users.allowedMethods());
