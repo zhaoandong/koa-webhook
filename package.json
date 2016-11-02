@@ -2,6 +2,6 @@
   "name": "koa-webhook",
   "version": "0.1.0",
   "dependencies": {
-    "github-webhook-handler": "^0.6.0",
+    "github-webhook-handler": "^0.6.0"
   }
 }
