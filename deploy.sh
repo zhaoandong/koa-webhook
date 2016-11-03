@@ -1,4 +1,4 @@
-cd '../koa2-demo'
+cd '../koa-demo'
 npm run stop 
 git pull origin master
 npm install
